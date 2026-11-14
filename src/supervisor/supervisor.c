@@ -45,7 +45,7 @@ static void *watch_awake(void *arg)
     int fd = vbus_open();
     vbus_state_t s;
     vbus_get(fd, &s);
-    for (;;) { awake = s.awake; vbus_wait(fd, s.seq, &s); }
+    for (;;) { awake = s.awake; if (vbus_wait(fd, s.seq, &s) != 0) usleep(5000); }
 }
 
 static pid_t start(const char *slot)

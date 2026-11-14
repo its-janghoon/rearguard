@@ -1,0 +1,15 @@
+$ uname -a
+QNX qnxqemu 8.0.0 2026/06/05-16:26:03EDT x86pc x86_64
+$ pidin | grep /data/qc
+ 4022300   1 bin/vbusd             45r RECEIVE        1                           
+ 4034590   1 bin/camsim            50f NANOSLEEP                                  
+ 4034591   1 bin/probe             60f NANOSLEEP                                  
+ 4042784   1 bin/cluster           40f NANOSLEEP                                  
+ 4042786   1 bin/rvc               10r SIGWAITINFO                                
+ 4042787   1 bin/secc              45r RECEIVE        1                           
+ 4042790   1 bin/evcc              45f NANOSLEEP                                  
+ 4055076   1 bin/copilot           10r NANOSLEEP                                  
+ 4055079   1 bin/supervisor        30f NANOSLEEP                                  
+ 4079638   1 info/a/infotainment   20f NANOSLEEP                                  
+$ ls -l /dev/vbus
+crw-rw-rw-  1 root root 0,   1 2026-11-14 07:13 /dev/vbus

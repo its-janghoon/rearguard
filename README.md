@@ -17,15 +17,15 @@ It starts from the moment vbusd records gear R.
 
 | Scene | Camera inside infotainment | Camera as its own QNX process |
 |---|---|---|
-| Cold start, R at 4.0 s (S14.2 shape, car software only) | 2.36 s, **fails 2.0 s** | 6.7 ms |
-| Wake, R 0.6 s later | **never shown** in a 4.4 s backing event | 4.8 ms |
-| Driving with AI on all CPUs, then R | 5.9 ms | 1.9 ms |
+| Cold start, R at 4.0 s (S14.2 shape, car software only) | 2.36 s, **fails 2.0 s** | 5 ms |
+| Wake, R 0.6 s later | **never shown** in a 4.4 s backing event | 3 ms |
+| Driving with AI on all CPUs, then R | 7 ms | 4 ms |
 | `kill -9` infotainment while in R | **image lost** for the last 3.0 s | stays up |
 | Bad update, 3 crashed starts | rollback to slot A, both | rollback to slot A, both |
 | Charging requests late (> 250 ms) all night | 0 | 0 |
 
 Raw logs and in-guest screenshots: `results/<mode>-<scenario>/`.
-Video rebuilt from those logs: `results/demo.mp4`.
+Video (2:44, narrated) rebuilt from those logs: `results/demo.mp4`. Narration text: `tools/narration.json`, voice made with `tools/tts.sh`.
 
 Priority-inheritance ablation (`qc-start.sh fixed`, channel created with
 `_NTO_CHF_FIXED_PRIORITY`): R -> first post 2.1 / 1.3 ms vs 2.2 / 1.5 ms with

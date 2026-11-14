@@ -10,7 +10,7 @@ if [ "$SC" = cold ]; then
     rm -f $QC/run/events.log
     $QC/bin/vsim $QC/scenarios/$SC.txt &
     QC_NOSLAY=1 sh $QC/qc-start.sh $MODE
-    wait
+    sleep 14                   # cold.txt ends at 11 s
 else
     sh $QC/qc-start.sh $MODE
     sleep 10                   # let infotainment finish its first start

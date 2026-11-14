@@ -208,7 +208,7 @@ def stopwatch(d, cx, cy, st):
         dt, state = st
         col = C["ok"] if state == "pass" else C["dim"] if state == "waiting" and dt <= 2.0 else C["bad"]
         word = {"pass": "PASS", "late": "LATE", "never": "NONE", "lost": "LOST", "waiting": ""}[state]
-        val = f"{dt:.2f} s" if dt < 10 else f"{dt:.1f} s"
+        val = f"{dt * 1000:.0f} ms" if dt < 0.1 else f"{dt:.2f} s" if dt < 10 else f"{dt:.1f} s"
         if state == "never":
             val = "never"
         frac = min(dt / 2.0, 1.0)
@@ -248,16 +248,35 @@ def card(frames, title, sub, foot=None):
         yield im
 
 
-def compare(left, right, t_from, t_to, kicker, title, lanes, speed=1.0):
-    rl, rr = Replay(left, t_from, t_to + 1), Replay(right, t_from, t_to + 1)
-    n = int((t_to - t_from) * FPS / speed)
+class Cursor:
+    """Replay frames on demand: frame k of the replay is log time t_from + k/FPS."""
+    def __init__(self, run, t_from, t_to):
+        self.rp, self.t_from, self.k, self.img = Replay(run, t_from, t_to + 1), t_from, -1, None
+
+    def at(self, t):
+        want = int((t - self.t_from) * FPS)
+        while self.k < want:
+            nxt = self.rp.next()
+            if nxt is None:
+                break
+            self.img, self.k = nxt, self.k + 1
+        return self.img.copy()
+
+
+class Fixed:
+    def __init__(self, img): self.img = img
+    def next(self): return self.img
+
+
+def compare(left, right, t_from, t_to, kicker, title, lanes, seconds):
+    cl, cr = Cursor(left, t_from, t_to), Cursor(right, t_from, t_to)
+    speed = (t_to - t_from) / seconds
+    n = int(seconds * FPS)
     pw, ph = 880, 330
+    kicker = kicker + ("" if abs(speed - 1) < 0.05 else f"  \u00b7  {speed:.1f}x SPEED")
     for i in range(n):
         t = t_from + i * speed / FPS
-        # replay emits 1 frame per 1/FPS of log time; skip frames when sped up
-        for _ in range(int(speed) - 1):
-            rl.next(); rr.next()
-        L = car_screen(left, rl, t); R = car_screen(right, rr, t)
+        L = car_screen(left, Fixed(cl.at(t)), t); R = car_screen(right, Fixed(cr.at(t)), t)
         im = Image.new("RGBA", (W, H), C["bg"] + (255,))
         d = ImageDraw.Draw(im)
         d.text((64, 52), kicker, font=F["kicker"], fill=C["dim"])
@@ -297,7 +316,7 @@ def lanes_for(run, label):
             up.append((boot, t, C["warn"], "starting")); boot = None; start = t
         elif m.startswith("crash") and boot is not None:
             up.append((boot, t, C["bad"], "crash")); boot = None
-        elif (m.startswith("exited") or m.startswith("sleep_stop")) and start is not None:
+        elif (m.startswith("exited") or m.startswith("sleep_stop") or m.startswith("restart_for_update")) and start is not None:
             up.append((start, t, C["blue"], "running")); start = None
     if start is not None:
         up.append((start, 1e9, C["blue"], "running"))
@@ -321,34 +340,213 @@ def charge_note(run):
     return f"{late} late of {total} requests"
 
 
+def text_card(seconds, draw_fn):
+    for i in range(int(seconds * FPS)):
+        im = Image.new("RGBA", (W, H), C["bg"] + (255,))
+        draw_fn(im, ImageDraw.Draw(im), i / FPS)
+        yield im.convert("RGB")
+
+
+def fade(i, t):  # 0..1 over the first 0.4 s after t
+    return max(0.0, min(1.0, (i - t) / 0.4))
+
+
+def hook_card(sec):
+    def f(im, d, t):
+        a = fade(t, 0)
+        d.text((W / 2, 380), "21,000,000", font=F["big"], fill=tuple(int(c * a) for c in C["text"]), anchor="mm")
+        d.text((W / 2, 500), "U.S. cars recalled for backup camera problems since 2018", font=F["cardsub"], fill=C["dim"], anchor="mm")
+        b = fade(t, 5.5)
+        if b:
+            d.text((W / 2, 640), "The camera was fine. The computer in the middle was not.", font=F["card"], fill=tuple(int(c * b) for c in C["text"]), anchor="mm")
+        d.text((W / 2, H - 70), "Source: published analysis of U.S. recall data, Aug 2026", font=F["lab"], fill=C["dim"], anchor="mm")
+    return text_card(sec, f)
+
+
+def law_card(sec):
+    parts = ["Cluster", "Rear camera", "Infotainment", "Updates", "AI assistant"]
+    def f(im, d, t):
+        d.text((W / 2, 200), "One computer runs all of it", font=F["card"], fill=C["text"], anchor="mm")
+        for k, p in enumerate(parts):
+            a = fade(t, 0.6 * k)
+            x = W / 2 + (k - 2) * 330
+            d.rounded_rectangle([x - 145, 300, x + 145, 400], 22, fill=tuple(int(c * a) for c in (24, 30, 38)),
+                                outline=tuple(int(c * a) for c in (C["warn"] if p == "Rear camera" else C["line"])), width=3)
+            d.text((x, 350), p, font=F["tag"], fill=tuple(int(c * a) for c in C["text"]), anchor="mm")
+        b = fade(t, 6.5)
+        if b:
+            d.text((W / 2, 600), "FMVSS 111:  rear image within  2.0 s  of reverse", font=F["card"], fill=tuple(int(c * b) for c in C["text"]), anchor="mm")
+            d.text((W / 2, 680), "S5.5.3. Test starts with every part of the rear view system powered off (S14.2).", font=F["cardsub"], fill=C["dim"], anchor="mm")
+    return text_card(sec, f)
+
+
+def device_card(sec):
+    con = open(os.path.join(RES, "console-split.txt")).read().rstrip().splitlines()
+    shot = Image.open(os.path.join(RES, "split-night", "s3_reverse.png")).convert("RGB").resize((1040, 390), Image.LANCZOS)
+    mono = font("Medium", 19)
+    try:
+        mono = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 18)
+    except OSError:
+        pass
+    def f(im, d, t):
+        d.text((64, 52), "ON THE QNX TARGET  \u00b7  QNX 8.0, QEMU x86_64, 4 vCPU", font=F["kicker"], fill=C["dim"])
+        d.text((64, 86), "Ten processes. The camera is one of them.", font=F["h1"], fill=C["text"])
+        d.rounded_rectangle([64, 170, 800, 1000], 18, fill=(10, 12, 14), outline=C["line"], width=2)
+        shown = int(len(con) * min(1, t / 6.0)) + 1
+        for k, ln in enumerate(con[:shown]):
+            col = C["warn"] if "rvc" in ln else (120, 210, 150) if ln.startswith("$") else (200, 206, 212)
+            d.text((88, 196 + k * 30), ln[:62], font=mono, fill=col)
+        im.paste(shot, (836, 200), rounded_mask(shot.size, 18))
+        d = ImageDraw.Draw(im)
+        d.text((836 + 520, 610), "screenshot taken on the target in R  (Screen, 1920x720)", font=F["lab"], fill=C["dim"], anchor="ma")
+        if t > 8:
+            y = 690
+            for k, (name, note, col) in enumerate([("vbusd", "/dev/vbus resource manager, held replies", C["blue"]),
+                                                   ("rvc", "camera window on top, waits for R", C["warn"]),
+                                                   ("cluster", "speed, gear, warning lights", C["text"]),
+                                                   ("infotainment", "slow, updated, can crash", C["dim"])]):
+                a = fade(t, 8 + 0.8 * k)
+                d.text((870, y + k * 70), name, font=F["tag"], fill=tuple(int(c * a) for c in col))
+                d.text((1090, y + 6 + k * 70), note, font=F["dim"], fill=tuple(int(c * a) for c in C["dim"]))
+    return text_card(sec, f)
+
+
+def method_card(sec):
+    def stack(d, x, title, cam_inside, a):
+        d.text((x + 380, 230), title, font=F["tag"], fill=C["text"], anchor="mm")
+        boxes = [("cluster", 300), ("infotainment", 420)] if cam_inside else [("cluster", 300), ("rear camera", 420), ("infotainment", 540)]
+        for name, y in boxes:
+            col = C["warn"] if name == "rear camera" else C["line"]
+            d.rounded_rectangle([x + 120, y, x + 640, y + 96], 18, fill=(20, 25, 31), outline=col, width=3)
+            d.text((x + 380, y + 48 if not (cam_inside and name == "infotainment") else y + 34), name, font=F["tag"], fill=C["text"], anchor="mm")
+        if cam_inside:
+            d.rounded_rectangle([x + 230, 470, x + 530, 506], 10, fill=(40, 30, 10), outline=C["warn"], width=2)
+            d.text((x + 380, 488), "rear camera", font=F["lane"], fill=C["warn"], anchor="mm")
+    def f(im, d, t):
+        d.text((W / 2, 120), "Same code, built two ways", font=F["card"], fill=C["text"], anchor="mm")
+        stack(d, 120, "Camera inside infotainment", True, 1)
+        if t > 3:
+            stack(d, 1040, "Camera as its own QNX process", False, 1)
+        if t > 9:
+            d.rounded_rectangle([420, 760, 1500, 900], 22, fill=C["panel"], outline=C["line"], width=2)
+            d.text((W / 2, 805), "probe: reads the composited screen every 4 ms", font=F["tag"], fill=C["text"], anchor="mm")
+            d.text((W / 2, 855), "and decodes the frame number hidden in the camera image", font=F["dim"], fill=C["dim"], anchor="mm")
+    return text_card(sec, f)
+
+
+def result_card(sec, rows):
+    shots = [Image.open(os.path.join(RES, m, f)).convert("RGB").resize((560, 210), Image.LANCZOS)
+             for m, f in [("mono-night", "s5_after_kill.png"), ("split-night", "s5_after_kill.png")]]
+    def f(im, d, t):
+        d.text((64, 60), "Results  \u00b7  measured from the screen", font=F["h1"], fill=C["text"])
+        x0, x1, x2 = 64, 900, 1400
+        d.text((x1, 160), "camera inside", font=F["tag"], fill=C["dim"]); d.text((x2, 160), "own QNX process", font=F["tag"], fill=C["dim"])
+        for k, (name, a, b, bad) in enumerate(rows):
+            y = 220 + k * 78
+            al = fade(t, 0.5 * k)
+            d.line([(x0, y - 14), (W - 64, y - 14)], fill=C["line"], width=1)
+            d.text((x0, y + 16), name, font=F["tag"], fill=tuple(int(c * al) for c in C["text"]), anchor="lm")
+            d.text((x1, y + 16), a, font=F["tag"], fill=tuple(int(c * al) for c in (C["bad"] if bad else C["text"])), anchor="lm")
+            d.text((x2, y + 16), b, font=F["tag"], fill=tuple(int(c * al) for c in C["ok"]), anchor="lm")
+        if t > 6:
+            for k, sh in enumerate(shots):
+                im.paste(sh, (240 + k * 900, 760), rounded_mask(sh.size, 14))
+            d = ImageDraw.Draw(im)
+            d.text((520, 985), "on target, after kill -9: camera inside infotainment", font=F["lab"], fill=C["dim"], anchor="ma")
+            d.text((1420, 985), "on target, after kill -9: own process", font=F["lab"], fill=C["dim"], anchor="ma")
+    return text_card(sec, f)
+
+
+def close_card(sec):
+    def f(im, d, t):
+        d.text((W / 2, 440), "One night in a parking lot", font=F["card"], fill=C["text"], anchor="mm")
+        d.text((W / 2, 520), "QNX 8.0  \u00b7  QEMU x86_64  \u00b7  code, logs and build steps in the repository", font=F["cardsub"], fill=C["dim"], anchor="mm")
+        d.text((W / 2, H - 70), "Camera photo: Triplec85, CC BY-SA 4.0, cropped. Full credits in the repository.", font=F["lab"], fill=C["dim"], anchor="mm")
+    return text_card(sec, f)
+
+
+def measure(run):
+    """(R -> camera seen) for each backing event, and whether the image was lost during it."""
+    out = []
+    for r0, r1 in run._r:
+        seen = [a for a, b, _ in run._cam if r0 <= a <= r1]
+        lost = [b for a, b, _ in run._cam if r0 < b < r1 - 0.05]
+        out.append((seen[0] - r0 if seen else None, r1 - r0, bool(lost), (r1 - lost[0]) if lost else 0))
+    return out
+
+
+def fmt(m):
+    dt, span, lost, lost_s = m
+    if dt is None:
+        return f"never shown ({span:.1f} s in R)", True
+    s = f"{dt * 1000:.0f} ms" if dt < 1 else f"{dt:.2f} s"
+    return s, dt > 2.0
+
+
 def main(out):
     mono_c, split_c = Run("mono-cold").prep(), Run("split-cold").prep()
     mono_n, split_n = Run("mono-night").prep(), Run("split-night").prep()
+    voice = os.path.join(ROOT, "build/voice")
+    dur = {}
+    for ln in subprocess.run(["bash", "-c", f"for f in {voice}/*.mp3; do echo $(basename $f .mp3) $(ffprobe -v error -show_entries format=duration -of csv=p=0 $f); done"],
+                             capture_output=True, text=True).stdout.split("\n"):
+        if ln.strip():
+            k, v = ln.split(); dur[k] = float(v)
+    pad = 3.0
+    D = {k: v + pad for k, v in dur.items()}
 
+    mc, sc = measure(mono_c), measure(split_c)
+    mn, sn = measure(mono_n), measure(split_n)
+    kill_lost = f"image lost, last {mn[1][3]:.1f} s of R" if mn[1][2] else fmt(mn[1])[0]
+    rows = [("Cold start, R at 4.0 s", *(fmt(mc[0])[0], fmt(sc[0])[0]), fmt(mc[0])[1]),
+            ("Wake, R 0.6 s later", fmt(mn[0])[0], fmt(sn[0])[0], fmt(mn[0])[1]),
+            ("AI on every CPU, then R", fmt(mn[1])[0] if not mn[1][2] else f"{mn[1][0]*1000:.0f} ms", fmt(sn[1])[0], False),
+            ("kill -9 infotainment in R", kill_lost, "stays up", mn[1][2]),
+            ("Bad update, 3 crashes", "rolled back to A", "rolled back to A", False),
+            ("Charging requests late", str(len(mono_n.ev("secc", "late"))), str(len(split_n.ev("secc", "late"))), False)]
+
+    order = []
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
-                           "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", out],
-                          stdin=subprocess.PIPE)
+                           "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18",
+                           os.path.join(ROOT, "build/video_noaudio.mp4")], stdin=subprocess.PIPE)
+    t_cursor = [0.0]
 
-    def emit(gen):
+    def emit(key, gen):
+        order.append((key, t_cursor[0]))
+        n = 0
         for im in gen:
-            ff.stdin.write(im.tobytes())
+            ff.stdin.write(im.tobytes()); n += 1
+        t_cursor[0] += n / FPS
 
-    emit(card(FPS * 4, "21,000,000 cars recalled for backup cameras", "The camera works. The computer in the middle does not.",
-              "Bloomberg analysis of NHTSA data, Aug 2026"))
-    emit(card(FPS * 3, "FMVSS 111: image within 2.0 s of R", "Test starts with everything powered off."))
-    lc = lanes_for(mono_c, "left"); rc = lanes_for(split_c, "right")
-    emit(compare(mono_c, split_c, 0.0, 9.0, "SCENE 1  \u00b7  COLD START (FMVSS 111 S14.2 SHAPE)",
-                 "Door opens, car software starts from off, R at 4.0 s.", [lc[0], lc[1], rc[1], lc[2]]))
-    ln = lanes_for(mono_n, "left"); rn = lanes_for(split_n, "right")
-    emit(compare(mono_n, split_n, 2.0, 20.0, "SCENE 2  \u00b7  OVERNIGHT UPDATE, 2x SPEED",
-                 "A bad update crashes infotainment 3 times. Slot A comes back.", [ln[2], rn[2], charge_lane(split_n)], speed=2.0))
-    emit(compare(mono_n, split_n, 69.5, 76.0, "SCENE 3  \u00b7  WAKE UP, THEN REVERSE",
-                 "Car wakes, infotainment restarts, driver shifts to R 0.6 s later.", [ln[0], ln[1], rn[1], ln[2]]))
-    emit(compare(mono_n, split_n, 75.5, 93.5, "SCENE 4  \u00b7  DRIVE WITH AI, REVERSE, INFOTAINMENT KILLED",
-                 "AI uses every CPU. Then infotainment is killed with kill -9 while in R.", [ln[0], ln[1], rn[1], ln[2]]))
-    ff.stdin.close()
-    ff.wait()
-    print(out)
+    lc, rc = lanes_for(mono_c, "left"), lanes_for(split_c, "right")
+    ln, rn = lanes_for(mono_n, "left"), lanes_for(split_n, "right")
+    emit("hook", hook_card(D["hook"]))
+    emit("law", law_card(D["law"]))
+    emit("device", device_card(D["device"]))
+    emit("method", method_card(D["method"]))
+    emit("cold", compare(mono_c, split_c, 0.0, 9.0, "SCENE 1  \u00b7  COLD START, FMVSS 111 S14.2 SHAPE",
+                         "Everything starts from off. Reverse at 4.0 s.", [lc[0], lc[1], rc[1], lc[2]], D["cold"]))
+    emit("update", compare(mono_n, split_n, 2.0, 20.0, "SCENE 2  \u00b7  OVERNIGHT UPDATE",
+                           "A broken update crashes infotainment 3 times. Slot A comes back.", [ln[2], rn[2], charge_lane(split_n)], D["update"]))
+    emit("wake", compare(mono_n, split_n, 69.5, 76.0, "SCENE 3  \u00b7  WAKE UP, THEN REVERSE",
+                         "The car wakes and the driver shifts to R 0.6 s later.", [ln[0], ln[1], rn[1], ln[2]], D["wake"]))
+    emit("kill", compare(mono_n, split_n, 75.5, 93.5, "SCENE 4  \u00b7  AI LOAD, REVERSE, kill -9",
+                         "AI keeps every CPU busy. Then infotainment is killed while in R.", [ln[0], ln[1], rn[1], ln[2]], D["kill"]))
+    emit("result", result_card(D["result"], rows))
+    emit("close", close_card(D["close"]))
+    ff.stdin.close(); ff.wait()
+
+    # narration: each clip starts 0.4 s into its scene
+    inputs, filt = [], []
+    for k, (key, t0) in enumerate(order):
+        inputs += ["-i", os.path.join(voice, f"{key}.mp3")]
+        ms = int((t0 + 0.4) * 1000)
+        filt.append(f"[{k + 1}:a]adelay={ms}|{ms}[a{k}]")
+    mix = "".join(f"[a{k}]" for k in range(len(order))) + f"amix=inputs={len(order)}:normalize=0,apad[aout]"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", os.path.join(ROOT, "build/video_noaudio.mp4"), *inputs,
+                    "-filter_complex", ";".join(filt) + ";" + mix, "-map", "0:v", "-map", "[aout]",
+                    "-c:v", "copy", "-c:a", "aac", "-b:a", "160k", "-t", f"{t_cursor[0]:.3f}", out], check=True)
+    print(out, f"{t_cursor[0]:.1f}s")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "hook",
+    "text": "Since twenty eighteen, about twenty-one million cars in the U.S. have been recalled for backup camera problems. Most of the time, the camera itself was fine. The computer in the middle of the car was not."
+  },
+  {
+    "id": "law",
+    "text": "Today one computer runs the instrument cluster, the rear camera, infotainment, software updates, and now an AI assistant. The U.S. safety standard says the rear image must appear within two seconds of shifting into reverse."
+  },
+  {
+    "id": "device",
+    "text": "This is our car computer, running QNX 8.0 in QEMU. Ten processes, each isolated by the microkernel. The rear camera is its own process, with its own window on top. It waits on the vehicle bus, a QNX resource manager, and gets its reply the moment the gear changes."
+  },
+  {
+    "id": "method",
+    "text": "We built the same code two ways. On the left, the camera lives inside infotainment, the way many recalled cars are built. On the right, the camera is its own QNX process. A separate probe reads the screen every four milliseconds, like a person filming the display."
+  },
+  {
+    "id": "cold",
+    "text": "Scene one follows the federal test. Everything starts from off, and the driver shifts into reverse at four seconds. On the left, the camera has to wait for infotainment to start. Two point three six seconds. That fails. On the right, the image is on screen in about five milliseconds."
+  },
+  {
+    "id": "update",
+    "text": "Scene two. Overnight, while the car charges, an update installs a broken infotainment build. It crashes three times, and the supervisor rolls back to the old version. The charging session never misses a request."
+  },
+  {
+    "id": "wake",
+    "text": "Scene three. In the morning the car wakes up, and the driver shifts into reverse right away. On the left, the camera never appears during the whole backing maneuver. On the right, it is there in three milliseconds."
+  },
+  {
+    "id": "kill",
+    "text": "Scene four. The AI assistant keeps every CPU busy, and reverse still works on both sides. Then we kill infotainment with kill minus nine. On the left, the camera goes dark. On the right, only infotainment restarts. The camera and the cluster keep running."
+  },
+  {
+    "id": "result",
+    "text": "Same car, same CPUs, same code. The only difference is where the camera lives. With QNX process isolation, the rear image no longer depends on the biggest, slowest, most often updated program in the car."
+  },
+  {
+    "id": "close",
+    "text": "Everything you saw ran on QNX 8.0 in QEMU. The code, the logs, and the build steps are in the repository."
+  }
+]

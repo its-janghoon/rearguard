@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #define W 1920
 #define H 720
@@ -32,7 +33,7 @@ static void *reader(void *arg)
         pthread_mutex_lock(&mu);
         latest = s; have = 1;
         pthread_mutex_unlock(&mu);
-        vbus_wait(fd, s.seq, &s);
+        if (vbus_wait(fd, s.seq, &s) != 0) usleep(5000);
     }
 }
 #endif
