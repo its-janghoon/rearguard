@@ -19,9 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Third-party parts keep their own licenses:
-- src/ui/fonts/*.c: generated from Pretendard, SIL Open Font License 1.1 (src/ui/fonts/OFL.txt)
-- assets/cam.jpg: CC BY-SA 4.0, see assets/ATTRIBUTION.txt
-- LVGL (fetched by scripts/fetch-deps.sh, not stored here): MIT
-- src/ui/lvscreen.c is based on LVGL's QNX driver (MIT)
