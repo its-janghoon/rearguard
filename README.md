@@ -25,7 +25,7 @@ It starts from the moment vbusd records gear R.
 | Charging requests late (> 250 ms) all night | 0 | 0 |
 
 Raw logs and in-guest screenshots: `results/<mode>-<scenario>/`.
-Video (2:44, narrated) rebuilt from those logs: `results/demo.mp4`. Narration text: `tools/narration.json`, voice made with `tools/tts.sh`.
+Video (2:44, narrated) rebuilt from those logs: `results/demo.mp4`, also on YouTube: https://youtu.be/SZ1mgF6qWow. Narration text: `tools/narration.json`, voice made with `tools/tts.sh`.
 
 Priority-inheritance ablation (`qc-start.sh fixed`, channel created with
 `_NTO_CHF_FIXED_PRIORITY`): R -> first post 2.1 / 1.3 ms vs 2.2 / 1.5 ms with
