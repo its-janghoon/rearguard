@@ -459,8 +459,9 @@ def result_card(sec, rows):
 
 def close_card(sec):
     def f(im, d, t):
-        d.text((W / 2, 440), "One night in a parking lot", font=F["card"], fill=C["text"], anchor="mm")
-        d.text((W / 2, 520), "QNX 8.0  \u00b7  QEMU x86_64  \u00b7  code, logs and build steps in the repository", font=F["cardsub"], fill=C["dim"], anchor="mm")
+        d.text((W / 2, 400), "RearGuard", font=F["big"], fill=C["text"], anchor="mm")
+        d.text((W / 2, 500), "One night in a parking lot", font=F["card"], fill=C["text"], anchor="mm")
+        d.text((W / 2, 580), "QNX 8.0  \u00b7  QEMU x86_64  \u00b7  code, logs and build steps in the repository", font=F["cardsub"], fill=C["dim"], anchor="mm")
         d.text((W / 2, H - 70), "Camera photo: Triplec85, CC BY-SA 4.0, cropped. Full credits in the repository.", font=F["lab"], fill=C["dim"], anchor="mm")
     return text_card(sec, f)
 

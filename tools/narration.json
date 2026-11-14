@@ -37,6 +37,6 @@
   },
   {
     "id": "close",
-    "text": "Everything you saw ran on QNX 8.0 in QEMU. The code, the logs, and the build steps are in the repository."
+    "text": "RearGuard. Everything you saw ran on QNX 8.0 in QEMU. The code, the logs, and the build steps are in the repository."
   }
 ]

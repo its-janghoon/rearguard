@@ -1,4 +1,4 @@
-# rearguard: one night in a parking lot
+# RearGuard: one night in a parking lot
 
 A car's central computer on **QNX 8.0**: instrument cluster, rear camera,
 infotainment, an overnight A/B update, a charging session and an AI assistant
