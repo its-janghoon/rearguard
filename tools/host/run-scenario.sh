@@ -2,7 +2,7 @@
 # Host side: deploy the build, run one scenario/mode on the guest, pull results.
 #   run-scenario.sh <mode> <scenario>
 MODE=${1:-split}; SC=${2:-night}
-R=$HOME/workplace/qnx-cluster/results
+R=$HOME/workplace/rearguard/results
 mkdir -p "$R"
 C="python3 $HOME/qnx-setup/con.py"
 $C 'sh /data/qc/qc-pull.sh >/dev/null' 300 >/dev/null || { echo pull failed; exit 1; }
