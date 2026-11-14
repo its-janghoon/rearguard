@@ -1,0 +1,163 @@
+1
+00:00:00,400 --> 00:00:03,766
+Since twenty eighteen, about twenty-one million cars in the U.S.
+
+2
+00:00:03,816 --> 00:00:06,221
+have been recalled for backup camera problems.
+
+3
+00:00:06,271 --> 00:00:08,623
+Most of the time, the camera itself was fine.
+
+4
+00:00:08,673 --> 00:00:11,078
+The computer in the middle of the car was not.
+
+5
+00:00:14,128 --> 00:00:20,885
+Today one computer runs the instrument cluster, the rear camera, infotainment, software updates, and now an AI assistant.
+
+6
+00:00:20,935 --> 00:00:21,335
+The U.S.
+
+7
+00:00:21,385 --> 00:00:26,510
+safety standard says the rear image must appear within two seconds of shifting into reverse.
+
+8
+00:00:29,560 --> 00:00:32,848
+This is our car computer, running QNX 8.0 in QEMU.
+
+9
+00:00:32,898 --> 00:00:36,052
+Ten processes, each isolated by the microkernel.
+
+10
+00:00:36,102 --> 00:00:40,258
+The rear camera is its own process, with its own window on top.
+
+11
+00:00:40,308 --> 00:00:46,934
+It waits on the vehicle bus, a QNX resource manager, and gets its reply the moment the gear changes.
+
+12
+00:00:49,984 --> 00:00:51,835
+We built the same code two ways.
+
+13
+00:00:51,885 --> 00:00:57,062
+On the left, the camera lives inside infotainment, the way many recalled cars are built.
+
+14
+00:00:57,112 --> 00:00:59,914
+On the right, the camera is its own QNX process.
+
+15
+00:00:59,964 --> 00:01:05,438
+A separate probe reads the screen every four milliseconds, like a person filming the display.
+
+16
+00:01:08,488 --> 00:01:10,536
+Scene one follows the federal test.
+
+17
+00:01:10,586 --> 00:01:15,273
+Everything starts from off, and the driver shifts into reverse at four seconds.
+
+18
+00:01:15,323 --> 00:01:18,990
+On the left, the camera has to wait for infotainment to start.
+
+19
+00:01:19,040 --> 00:01:20,669
+Two point three six seconds.
+
+20
+00:01:20,719 --> 00:01:21,329
+That fails.
+
+21
+00:01:21,379 --> 00:01:25,166
+On the right, the image is on screen in about five milliseconds.
+
+22
+00:01:28,216 --> 00:01:28,743
+Scene two.
+
+23
+00:01:28,793 --> 00:01:33,416
+Overnight, while the car charges, an update installs a broken infotainment build.
+
+24
+00:01:33,466 --> 00:01:37,628
+It crashes three times, and the supervisor rolls back to the old version.
+
+25
+00:01:37,678 --> 00:01:40,166
+The charging session never misses a request.
+
+26
+00:01:43,216 --> 00:01:43,868
+Scene three.
+
+27
+00:01:43,918 --> 00:01:48,486
+In the morning the car wakes up, and the driver shifts into reverse right away.
+
+28
+00:01:48,536 --> 00:01:52,696
+On the left, the camera never appears during the whole backing maneuver.
+
+29
+00:01:52,746 --> 00:01:55,502
+On the right, it is there in three milliseconds.
+
+30
+00:01:58,552 --> 00:01:59,186
+Scene four.
+
+31
+00:01:59,236 --> 00:02:03,976
+The AI assistant keeps every CPU busy, and reverse still works on both sides.
+
+32
+00:02:04,026 --> 00:02:06,900
+Then we kill infotainment with kill minus nine.
+
+33
+00:02:06,950 --> 00:02:09,015
+On the left, the camera goes dark.
+
+34
+00:02:09,065 --> 00:02:11,566
+On the right, only infotainment restarts.
+
+35
+00:02:11,616 --> 00:02:14,054
+The camera and the cluster keep running.
+
+36
+00:02:17,104 --> 00:02:19,068
+Same car, same CPUs, same code.
+
+37
+00:02:19,118 --> 00:02:22,056
+The only difference is where the camera lives.
+
+38
+00:02:22,106 --> 00:02:30,110
+With QNX process isolation, the rear image no longer depends on the biggest, slowest, most often updated program in the car.
+
+39
+00:02:33,160 --> 00:02:33,819
+RearGuard.
+
+40
+00:02:33,869 --> 00:02:36,799
+Everything you saw ran on QNX 8.0 in QEMU.
+
+41
+00:02:36,849 --> 00:02:41,198
+The code, the logs, and the build steps are in the repository.
