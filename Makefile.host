@@ -1,0 +1,27 @@
+# Host (Linux) build of the replay renderer: same cluster UI, LVGL into memory.
+CC     = gcc
+OUT    = build/host
+LVGL   = third_party/lvgl
+INC    = -Isrc/ui -I$(LVGL) -DLV_CONF_INCLUDE_SIMPLE
+
+LVGL_SRC := $(shell find $(LVGL)/src -name '*.c')
+LVGL_OBJ := $(patsubst %.c,$(OUT)/obj/%.o,$(LVGL_SRC))
+FONT_OBJ := $(patsubst %.c,$(OUT)/obj/%.o,$(wildcard src/ui/fonts/*.c))
+
+$(OUT)/replay: $(OUT)/obj/src/replay/replay.o $(OUT)/obj/src/cluster/cluster_replay.o $(OUT)/obj/src/ui/widgets.o $(OUT)/obj/src/common/common.o $(OUT)/liblvgl.a
+	$(CC) -o $@ $^ -lm -lpthread
+
+$(OUT)/obj/$(LVGL)/%.o: $(LVGL)/%.c src/ui/lv_conf.h
+	@mkdir -p $(dir $@)
+	@$(CC) -O2 $(INC) -c $< -o $@
+
+$(OUT)/obj/src/cluster/cluster_replay.o: src/cluster/cluster.c
+	@mkdir -p $(dir $@)
+	$(CC) -O2 -DREPLAY $(INC) -c $< -o $@
+
+$(OUT)/obj/src/%.o: src/%.c
+	@mkdir -p $(dir $@)
+	$(CC) -O2 $(INC) -c $< -o $@
+
+$(OUT)/liblvgl.a: $(LVGL_OBJ) $(FONT_OBJ)
+	@rm -f $@; ar rcs $@ $^

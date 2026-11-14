@@ -1,0 +1,12 @@
+# FMVSS 111 S14.2 shape, applied to the car software (not the QEMU boot):
+# everything off -> door opens (t=0, stack starts) -> R between 4.0 and 6.0 s -> image within 2.0 s.
+# We use the hardest case, R at 4.0 s.
+0 mark cold_start_door_open
+0 gear P
+4000 gear R
+4000 park 120
+4000 mark backing_event_start
+4500 run screenshot -file=/data/qc/run/c_r_plus_0_5s.bmp
+6000 run screenshot -file=/data/qc/run/c_r_plus_2_0s.bmp
+9000 gear P
+11000 mark end

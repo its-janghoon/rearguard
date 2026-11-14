@@ -4,9 +4,18 @@
 MODE=${1:-split}
 SC=${2:-night}
 QC=/data/qc
-sh $QC/qc-start.sh $MODE
-sleep 10                       # let infotainment finish its first start
-$QC/bin/vsim $QC/scenarios/$SC.txt
+if [ "$SC" = cold ]; then
+    # cold start: the scenario clock starts together with the car software
+    sh $QC/qc-start.sh stop
+    rm -f $QC/run/events.log
+    $QC/bin/vsim $QC/scenarios/$SC.txt &
+    QC_NOSLAY=1 sh $QC/qc-start.sh $MODE
+    wait
+else
+    sh $QC/qc-start.sh $MODE
+    sleep 10                   # let infotainment finish its first start
+    $QC/bin/vsim $QC/scenarios/$SC.txt
+fi
 sleep 4
 OUT=$QC/results/$MODE-$SC
 rm -rf $OUT; mkdir -p $OUT

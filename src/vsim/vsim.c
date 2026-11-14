@@ -25,8 +25,8 @@ int main(int argc, char **argv)
     FILE *f = fopen(argv[1], "r");
     if (!f) { perror(argv[1]); return 1; }
     set_prio(45);
+    uint64_t t0 = now_ns();          /* before the bus exists: cold start counts from here */
     int fd = vbus_open();
-    uint64_t t0 = now_ns();
     evlog("vsim", "start scenario=%s", argv[1]);
     char line[512];
     while (fgets(line, sizeof line, f)) {

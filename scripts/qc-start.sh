@@ -7,10 +7,13 @@ MODE=${1:-split}
 QC=/data/qc
 B=$QC/bin
 
-slay -f -Q vsim otad probe copilot evcc secc supervisor infotainment cluster rvc camsim vbusd >/dev/null 2>&1
-sleep 1
+if [ "$QC_NOSLAY" != 1 ]; then
+    slay -f -Q vsim otad probe copilot evcc secc supervisor infotainment cluster rvc camsim vbusd >/dev/null 2>&1
+    sleep 1
+fi
+[ "$MODE" = stop ] && exit 0
 mkdir -p $QC/run $QC/info/a
-rm -f $QC/run/events.log
+[ "$QC_NOSLAY" != 1 ] && rm -f $QC/run/events.log
 rm -rf $QC/info/b
 cp $B/infotainment $QC/info/a/infotainment
 echo a > $QC/info/next

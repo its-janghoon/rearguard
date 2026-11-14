@@ -62,6 +62,9 @@ static void apply_put(const vbus_put_t *p)
     if (m & VF_AI) state.ai_on = s->ai_on;
     if (m & VF_PARK) state.park_dist_cm = s->park_dist_cm;
     state.seq++;
+    evlog("vbusd", "state seq=%u gear=%d speed=%d steer=%d awake=%d charge=%d soc=%d range=%d belt=%d brake=%d ai=%d park=%d",
+          state.seq, state.gear, state.speed_x10, state.steer_deg, state.awake, state.charge_w, state.soc,
+          state.range_km, state.seatbelt, state.brake_fault, state.ai_on, state.park_dist_cm);
 }
 
 static int io_devctl(resmgr_context_t *ctp, io_devctl_t *msg, RESMGR_OCB_T *ocb)

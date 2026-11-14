@@ -1,0 +1,48 @@
+4261239826140 vbusd ready flags=0
+4261241394786 vsim start scenario=/data/qc/scenarios/cold.txt
+4261242248552 vsim mark cold_start_door_open
+4261242857103 vsim set gear=P
+4261243410868 vbusd state seq=1 gear=0 speed=0 steer=0 awake=1 charge=0 soc=60 range=300 belt=1 brake=0 ai=0 park=0
+4261291292346 camsim ready
+4261292417876 probe ready
+4261318976919 secc ready timeout_ms=250
+4261329326732 evcc ready
+4261330161840 vbusd state seq=2 gear=0 speed=0 steer=0 awake=1 charge=7360 soc=60 range=300 belt=1 brake=0 ai=0 park=0
+4261344959218 copilot ready threads=4
+4261355779459 supervisor started slot=a pid=12656672
+4261358254054 cluster ready
+4261362247394 infotainment start slot=a camera=1 broken=0
+4261405930020 lvs post buf=0 rc=0 area=0,0-1919,719
+4261415356801 lvs post buf=1 rc=0 area=1018,614-1061,659
+4265041729906 vsim set gear=R
+4265042424077 vbusd state seq=3 gear=1 speed=0 steer=0 awake=1 charge=7360 soc=60 range=300 belt=1 brake=0 ai=0 park=0
+4265043050914 vbusd state seq=4 gear=1 speed=0 steer=0 awake=1 charge=7360 soc=60 range=300 belt=1 brake=0 ai=0 park=120
+4265043484260 vsim mark backing_event_start
+4265044308425 cluster gear_view r=1
+4265050873659 lvs post buf=1 rc=0 area=1018,614-1061,659
+4265051142900 cluster frames=3 worst_gap_ms=3635.5
+4265130077216 vbusd state seq=5 gear=1 speed=0 steer=0 awake=1 charge=0 soc=60 range=300 belt=1 brake=0 ai=0 park=120
+4265130368141 evcc session_end gear=1
+4265150498343 lvs post buf=1 rc=0 area=1018,614-1061,659
+4265541899222 vsim run screenshot -file=/data/qc/run/c_r_plus_0_5s.bmp
+4267041909543 vsim run screenshot -file=/data/qc/run/c_r_plus_2_0s.bmp
+4267390112527 infotainment ready slot=a
+4267395834844 infotainment-rvc ready
+4267398981749 lvs post buf=0 rc=0 area=0,0-879,39
+4267399886367 infotainment-rvc first_post gear_ns=4265042386460 seen_ns=4267390053506 cam_seq=67490 r_to_post_ms=2357.2
+4267404181773 probe cam_visible seq=67490
+4267442562031 lvs post buf=1 rc=0 area=302,2-602,38
+4270041952073 vsim set gear=P
+4270042432702 vbusd state seq=6 gear=0 speed=0 steer=0 awake=1 charge=0 soc=60 range=300 belt=1 brake=0 ai=0 park=120
+4270044196779 infotainment-rvc hide frames=80
+4270047163682 probe cam_gone last_seq=67569
+4270056473147 cluster gear_view r=0
+4270061737881 lvs post buf=1 rc=0 area=1018,614-1061,659
+4270061962988 cluster frames=2 worst_gap_ms=4911.2
+4270089020355 lvs post buf=1 rc=0 area=302,2-602,38
+4270155337626 secc session_restart gap_ms=5125
+4270155703801 vbusd state seq=7 gear=0 speed=0 steer=0 awake=1 charge=7360 soc=60 range=300 belt=1 brake=0 ai=0 park=120
+4270163438336 lvs post buf=1 rc=0 area=1018,614-1061,659
+4270189838922 lvs post buf=1 rc=0 area=302,2-602,38
+4272041940847 vsim mark end
+4272042506467 vsim end

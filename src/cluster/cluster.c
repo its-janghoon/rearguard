@@ -19,6 +19,7 @@ static pthread_mutex_t mu = PTHREAD_MUTEX_INITIALIZER;
 static vbus_state_t latest;
 static int have;
 
+#ifndef REPLAY
 static void *reader(void *arg)
 {
     (void)arg;
@@ -34,6 +35,7 @@ static void *reader(void *arg)
         vbus_wait(fd, s.seq, &s);
     }
 }
+#endif
 
 static struct {
     lv_obj_t *all, *gear[4], *speed, *park, *park_rear, *range, *range_km, *range_bar, *range_note;
@@ -208,6 +210,11 @@ static void on_frame(void)
     }
 }
 
+#ifdef REPLAY
+/* Host replay: same UI code, state fed from a recorded log. */
+void cluster_build(void) { make_ui(); }
+void cluster_set(const vbus_state_t *s) { latest = *s; have = 1; tick(NULL); }
+#else
 int main(void)
 {
     set_prio(40);
@@ -221,3 +228,4 @@ int main(void)
     evlog("cluster", "ready");
     lvs_run();
 }
+#endif
