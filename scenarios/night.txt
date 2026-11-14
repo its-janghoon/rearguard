@@ -1,0 +1,53 @@
+# One night in a parking lot (compressed). t_ms field value
+# S2 happens on its own: install done -> restart into b -> 3 crashes -> rollback to a
+0 mark S1 night_charging_and_update
+0 awake 1
+0 gear P
+0 belt 0
+0 ai 0
+3000 run /data/qc/bin/otad --bad
+4500 run screenshot -file=/data/qc/run/s1_install.bmp
+9000 run screenshot -file=/data/qc/run/s2_crash.bmp
+60000 mark S3 sleep
+60000 awake 0
+62000 run screenshot -file=/data/qc/run/s3_sleep.bmp
+70000 mark S3 wake_then_reverse
+70000 awake 1
+70600 gear R
+70600 park 140
+71200 run screenshot -file=/data/qc/run/s3_reverse.bmp
+71500 park 110
+72500 park 80
+73500 park 60
+75000 gear P
+75000 park 0
+76000 mark S4 drive_with_ai
+76000 belt 1
+76000 gear D
+76500 speed 4
+77000 speed 8
+77500 speed 12
+78000 ai 1
+78000 speed 16
+78500 speed 20
+79000 speed 24
+80000 speed 28
+81000 run screenshot -file=/data/qc/run/s4_drive.bmp
+82000 speed 28
+83000 speed 20
+84000 speed 12
+85000 speed 4
+85500 speed 0
+86000 gear R
+86000 steer -18
+86000 park 150
+87000 run screenshot -file=/data/qc/run/s4_reverse_ai.bmp
+87500 park 90
+89000 mark S5 kill_infotainment
+89000 run slay -s KILL -f infotainment
+90000 run screenshot -file=/data/qc/run/s5_after_kill.bmp
+92000 park 0
+92000 steer 0
+92000 gear P
+93000 ai 0
+96000 mark end

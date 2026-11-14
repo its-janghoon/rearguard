@@ -1,0 +1,148 @@
+2852123980727 vbusd ready flags=0
+2852283550658 probe ready
+2852289718461 secc ready timeout_ms=250
+2852291066019 evcc ready
+2852295003395 camsim ready
+2852299598183 rvc ready
+2852303445002 copilot ready threads=4
+2852312415366 supervisor started slot=a pid=6119464
+2852320546257 infotainment start slot=a camera=0 broken=0
+2852329802882 cluster ready
+2852359888341 lvs post buf=0 rc=0 area=0,0-1919,719
+2852369396164 lvs post buf=1 rc=0 area=1018,614-1061,659
+2858347744604 infotainment ready slot=a
+2858355797352 lvs post buf=0 rc=0 area=0,0-879,39
+2858399732610 lvs post buf=1 rc=0 area=302,2-602,38
+2862192263319 secc stats total=100 late=0 worst_gap_ms=100.5
+2862343486479 vsim start scenario=/data/qc/scenarios/night.txt
+2862344301894 vsim mark S1 night_charging_and_update
+2862344578261 vsim set awake=1
+2862345249128 vsim set gear=P
+2862345864546 vsim set belt=0
+2862346317287 vsim set ai=0
+2862350542169 lvs post buf=1 rc=0 area=1018,614-1061,659
+2862350814972 cluster frames=3 worst_gap_ms=9981.1
+2862367344127 lvs post buf=1 rc=0 area=1018,614-1061,659
+2862370220224 lvs post buf=1 rc=0 area=302,2-602,38
+2865344160211 vsim run /data/qc/bin/otad --bad
+2865371275113 otad install_begin slot=b bad=1 size_mb=300
+2866844092885 vsim run screenshot -file=/data/qc/run/s1_install.bmp
+2868049964478 otad install_done sum=1453326336 next=b
+2868051104400 supervisor restart_for_update
+2868060232944 supervisor started slot=b pid=6160421
+2868068358310 infotainment start slot=b camera=0 broken=1
+2869569138742 infotainment crash slot=b
+2869590278707 supervisor exited slot=b up_s=1.5 signal=6
+2869907351364 supervisor started slot=b pid=6164517
+2869919689389 infotainment start slot=b camera=0 broken=1
+2871344021527 vsim run screenshot -file=/data/qc/run/s2_crash.bmp
+2871423931729 infotainment crash slot=b
+2871437214028 supervisor exited slot=b up_s=1.5 signal=6
+2871742438413 supervisor started slot=b pid=6180901
+2871748512537 infotainment start slot=b camera=0 broken=1
+2872191998855 secc stats total=200 late=0 worst_gap_ms=100.7
+2873249096478 infotainment crash slot=b
+2873273150445 supervisor exited slot=b up_s=1.5 signal=6
+2873275833398 supervisor rollback to=a after=3_failed_starts
+2873584708576 supervisor started slot=a pid=6184997
+2873592979276 infotainment start slot=a camera=0 broken=0
+2879621294550 infotainment ready slot=a
+2879629545210 lvs post buf=0 rc=0 area=0,0-879,39
+2879674026332 lvs post buf=1 rc=0 area=302,2-602,38
+2882192182070 secc stats total=300 late=0 worst_gap_ms=100.5
+2892192276317 secc stats total=400 late=0 worst_gap_ms=100.2
+2902192142441 secc stats total=500 late=0 worst_gap_ms=100.3
+2912192145691 secc stats total=600 late=0 worst_gap_ms=100.3
+2912197402671 lvs post buf=1 rc=0 area=302,2-602,38
+2912212562715 lvs post buf=1 rc=0 area=1018,614-1061,659
+2912212789009 cluster frames=2 worst_gap_ms=49845.2
+2922192234156 secc stats total=700 late=0 worst_gap_ms=100.6
+2922344052326 vsim mark S3 sleep
+2922344752777 vsim set awake=0
+2922357728515 lvs post buf=1 rc=0 area=0,0-1919,719
+2922358075165 cluster frames=1 worst_gap_ms=10145.3
+2922383150048 lvs post buf=1 rc=0 area=302,2-602,38
+2922394023240 supervisor sleep_stop
+2924344067791 vsim run screenshot -file=/data/qc/run/s3_sleep.bmp
+2932192160758 secc stats total=800 late=0 worst_gap_ms=100.2
+2932344007762 vsim mark S3 wake_then_reverse
+2932344543254 vsim set awake=1
+2932355676155 cluster frames=1 worst_gap_ms=9997.6
+2932408717038 supervisor started slot=a pid=6201381
+2932417444301 infotainment start slot=a camera=0 broken=0
+2932944015425 vsim set gear=R
+2932946695109 rvc first_post gear_ns=2932944438953 seen_ns=2932944543734 cam_seq=27787 r_to_post_ms=2.2
+2932948258716 probe cam_visible seq=27787
+2932961575464 cluster gear_view r=1
+2932992436006 evcc session_end gear=1
+2933544027296 vsim run screenshot -file=/data/qc/run/s3_reverse.bmp
+2933866913895 cluster frames=3 worst_gap_ms=866.3
+2935853387016 cluster frames=2 worst_gap_ms=1002.1
+2937344089440 vsim set gear=P
+2937346473996 rvc hide frames=133
+2937349312402 probe cam_gone last_seq=27919
+2937361520260 cluster gear_view r=0
+2937367505387 cluster frames=1 worst_gap_ms=1514.1
+2937414384953 secc session_restart gap_ms=4522
+2938344093889 vsim mark S4 drive_with_ai
+2938344601627 vsim set belt=1
+2938345167703 vsim set gear=D
+2938415434255 evcc session_end gear=3
+2938435688775 cluster frames=3 worst_gap_ms=918.7
+2938445255187 infotainment ready slot=a
+2938452922437 lvs post buf=0 rc=0 area=0,0-879,39
+2938501789932 lvs post buf=1 rc=0 area=302,2-602,38
+2938854297615 lvs post buf=1 rc=0 area=302,2-602,38
+2939364244232 lvs post buf=1 rc=0 area=302,2-602,38
+2939860635256 cluster frames=3 worst_gap_ms=510.4
+2939872423674 lvs post buf=1 rc=0 area=302,2-602,38
+2940344164216 vsim set ai=1
+2940381311115 lvs post buf=1 rc=0 area=302,2-602,38
+2940393104858 copilot ai_on=1
+2940393427164 copilot matmul_per_s=0.0
+2940863760085 cluster frames=2 worst_gap_ms=510.1
+2941396977473 copilot matmul_per_s=570.9
+2942355709871 cluster frames=2 worst_gap_ms=1001.3
+2942400840780 copilot matmul_per_s=581.8
+2943343882925 vsim run screenshot -file=/data/qc/run/s4_drive.bmp
+2943406881517 copilot matmul_per_s=576.5
+2944359481888 cluster frames=1 worst_gap_ms=2003.8
+2944414818988 copilot matmul_per_s=562.5
+2945362318973 cluster frames=1 worst_gap_ms=1002.8
+2945419809516 copilot matmul_per_s=582.1
+2946364391825 cluster frames=1 worst_gap_ms=1002.1
+2946425884029 copilot matmul_per_s=583.5
+2947431822776 copilot matmul_per_s=580.6
+2947857166748 cluster frames=2 worst_gap_ms=984.8
+2948343841938 vsim set gear=R
+2948345735803 rvc first_post gear_ns=2948344238730 seen_ns=2948344282270 cam_seq=28249 r_to_post_ms=1.5
+2948346145316 cluster gear_view r=1
+2948348993567 probe cam_visible seq=28249
+2948438895230 copilot matmul_per_s=574.9
+2949343871604 vsim run screenshot -file=/data/qc/run/s4_reverse_ai.bmp
+2949449923351 copilot matmul_per_s=553.9
+2949863005246 cluster frames=3 worst_gap_ms=1495.0
+2950459880604 copilot matmul_per_s=554.5
+2951343818389 vsim mark S5 kill_infotainment
+2951344277872 vsim run slay -s KILL -f infotainment
+2951381935422 supervisor exited slot=a up_s=19.0 signal=9
+2951463824067 copilot matmul_per_s=562.8
+2951686846157 supervisor started slot=a pid=6254629
+2951691866204 infotainment start slot=a camera=0 broken=0
+2952343853730 vsim run screenshot -file=/data/qc/run/s5_after_kill.bmp
+2952474675258 copilot matmul_per_s=498.6
+2953481829226 copilot matmul_per_s=492.5
+2954344300646 vsim set gear=P
+2954347209600 probe cam_gone last_seq=28429
+2954347535105 rvc hide frames=181
+2954348272457 cluster gear_view r=0
+2954353000148 cluster frames=1 worst_gap_ms=4490.0
+2954487598936 copilot matmul_per_s=503.1
+2954497154984 secc session_restart gap_ms=16182
+2955343853097 vsim set ai=0
+2955495608110 copilot ai_on=0
+2957699548974 infotainment ready slot=a
+2957700956073 lvs post buf=0 rc=0 area=0,0-879,39
+2957751014659 lvs post buf=1 rc=0 area=302,2-602,38
+2958344046640 vsim mark end
+2958344548425 vsim end
